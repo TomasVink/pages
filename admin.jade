@@ -1,0 +1,50 @@
+template(name="adminLayout")
+   .container
+      .row
+         .col-sm-12
+            h1: a(href="/admin") Admin
+      .row
+         .col-sm-12
+            ul.nav.nav-tabs
+               li: a(href="#"): +loginButtons
+               if admin
+                  each pages
+                     li(role="presentation"): a(href="/admin/{{title}}") {{title}}
+      .row
+         .col-sm-12
+            if admin
+               +yield
+            else
+               p Log in om aanpassingen te kunnen doen
+
+template(name="admin")
+   p Kies een een sectie om aanpassingen te doen.
+
+template(name="page")
+   h1 {{title}}
+   each subs
+      .panel.panel-default
+         .panel-heading {{title}}
+         .panel-body
+            each comps
+               +component
+
+template(name="order")
+   unless onlyEl
+      unless firstEl
+         button.btn.btn-default#up UP
+         br
+      unless lastEl
+         button.btn.btn-default#down DOWN
+
+template(name="component")
+   label {{title}}
+   br
+   if type 'text'
+      input.form-control(id="{{title}}" type="text" value="{{content}}")
+   else if type 'textarea'
+      textarea.form-control(id="{{title}}" rows="6")
+         | {{content}}
+   br
+   button.btn.btn-success.saveSub Save
+   hr
