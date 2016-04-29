@@ -1,7 +1,8 @@
 Package.describe({
    name: 'tomasvink:cms',
    summary: 'Basic cms for maintaining webpages',
-   version: '0.1.0'
+   version: '0.1.0',
+   git: 'https://github.com/tomasvink/pages.git'
 });
 
 Package.onUse(function(api) {

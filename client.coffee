@@ -1,3 +1,5 @@
+Meteor.subscribe 'pages', {}
+
 Template.registerHelper 'page', (args) ->
    #args.hash has page, sub(=optional), content and type
    a = args.hash
