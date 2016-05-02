@@ -41,10 +41,10 @@ template(name="component")
    label {{title}}
    br
    if type 'text'
-      input.form-control(id="{{title}}" type="text" value="{{content}}")
+      input.form-control(id="{{pdata}}-{{title}}" type="text" value="{{content}}")
    else if type 'textarea'
-      textarea.form-control(id="{{title}}" rows="6")
+      textarea.form-control(id="{{pdata}}-{{title}}" rows="6")
          | {{content}}
    br
-   button.btn.btn-success.saveSub Save
+   button.btn.btn-success.saveSub(sub="{{pdata}}") Save
    hr

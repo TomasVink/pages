@@ -45,7 +45,6 @@ Meteor.methods
          "subs.#{doc.pdata}.#{doc.title}":
             content: content
             type: doc.type
-      console.log set
       Pages.update {title: page}, {$set:set}
    changeOrder: (collection, dir, currentOrder) ->
       # Not in use

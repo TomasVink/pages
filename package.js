@@ -17,7 +17,7 @@ Package.onUse(function(api) {
             'accounts-password',
             'accounts-ui',
             'alanning:roles',
-            'lepozepo:s3',
+            // 'lepozepo:s3',
             'markdown',
             'check']);
    api.addFiles(['lib.coffee']);

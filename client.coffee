@@ -8,7 +8,7 @@ Template.registerHelper 'page', (args) ->
       Meteor.call 'addPage', a
    return page?.subs[a.sub]?[a.content]?.content
 
-Template.registerHelper 'admin', -> return true if Roles.userIsInRole Meteor.userId(), 'admin'
+Template.registerHelper 'admin', -> Roles.userIsInRole Meteor.userId(), ['admin']
 
 Template.adminLayout.helpers
    pages: -> Pages.find {}
@@ -47,9 +47,10 @@ Template.component.helpers
 Template.component.events
    'click .saveSub': (e,t) ->
       doc = this
-      doc.content = $("##{this.title}").val()
+      sub = $(e.currentTarget).attr('sub')
+      doc.content = $("##{sub}-#{this.title}").val()
       doc.content = doc.content.replace(/\n/g,'<br>')
-      page = Router.current().params.sub
+      page = Router.current().params.page
       Meteor.call 'saveSub', doc, page
       $(e.currentTarget).html('Saved...')
       Meteor.setTimeout ->
