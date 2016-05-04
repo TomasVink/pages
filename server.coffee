@@ -38,24 +38,70 @@ Meteor.methods
          Pages.insert
             title: args.page
             subs: subs
-   saveSub: (doc, page) ->
+   saveSub: (doc, page, type) ->
       checkAdmin()
-      content = doc.content.replace(/<br\s*[\/]?>/gi,'\n')
-      set =
+      if type is "text" or type is "textarea"
+         content = doc.content.replace(/<br\s*[\/]?>/gi,'\n')
+         set =
          "subs.#{doc.pdata}.#{doc.title}":
             content: content
             type: doc.type
-      Pages.update {title: page}, {$set:set}
-   changeOrder: (collection, dir, currentOrder) ->
+         Pages.update {title: page}, {$set:set}
+      else if type is "list"
+         Pages.update 
+            title: page
+            "subs.#{doc.pdata}.#{doc.title}.content.order": Number doc.order
+         ,
+            $set: 
+               "subs.#{doc.pdata}.#{doc.title}.content.$.content":
+                  _.object _.map doc, (value, key) -> [key, value.replace(/<br\s*[\/]?>/gi,'\n')]
+   addAgendaItem: (doc, page)->
+      checkAdmin()
+      p = Pages.findOne({title: page})
+      highest = _.max p.subs[doc.pdata][doc.title].content, (o) -> o.order
+      highest.order += 1
+      Pages.update
+         title: page
+         {$push: "subs.#{doc.pdata}.#{doc.title}.content": 
+            $each: [ 
+               order: highest.order
+               content:
+                  datum: ""
+                  locatie: ""
+                  gemeente: ""
+                  beschrijving: ""
+                  uur: ""] }
+   removeAgendaItem: (doc, page)->
+      checkAdmin()
+      Pages.update
+         title: page
+         { $pull: 
+            "subs.#{doc.pdata}.#{doc.title}.content": 
+               order: doc.order }
+      
+   changeOrder: (page, doc, dir, currentOrder) ->
       # Not in use
       checkAdmin()
       # Define collection first!
-      # col = ...
-      obj = col.findOne {order:currentOrder}
+      col = Pages
+      obj = col.findOne {title: page}
+      
       if dir is 'down'
+         # console.log 'DOWN'
          unless obj.order + 1 is col.find().fetch().length
-            col.update {order:currentOrder+1}, {$set:{order:currentOrder}}
-            col.update {_id:obj._id}, {$set:{order:currentOrder+1}}
+            # console.log "subs.#{doc.pdata}.#{doc.title}.content.order"
+            # console.log obj._id
+            # console.log Number(currentOrder)+1
+            col.update 
+               title: page
+               "subs.#{doc.pdata}.#{doc.title}.content.order": Number(currentOrder)+1
+            ,  
+               $set:
+                  "subs.#{doc.pdata}.#{doc.title}.content.order": Number currentOrder
+            col.update 
+               _id: obj._id
+               $set: 
+                  "subs.#{doc.pdata}.#{doc.title}.content.order": Number(currentOrder)+1
       if dir is 'up'
          unless obj.order is 0
             col.update {order:currentOrder-1}, {$set:{order:currentOrder}}

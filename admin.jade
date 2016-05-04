@@ -42,9 +42,36 @@ template(name="component")
    br
    if type 'text'
       input.form-control(id="{{pdata}}-{{title}}" type="text" value="{{content}}")
+      br
+      button.btn.btn-success.saveSub(sub="{{pdata}}" type="{{this.type}}") Save
+      hr
    else if type 'textarea'
       textarea.form-control(id="{{pdata}}-{{title}}" rows="6")
          | {{content}}
-   br
-   button.btn.btn-success.saveSub(sub="{{pdata}}") Save
-   hr
+      br
+      button.btn.btn-success.saveSub(sub="{{pdata}}" type="{{this.type}}") Save
+      hr
+   else if type 'list'
+      +list
+   
+
+template(name="list")
+   each list content
+      label datum
+      input.form-control(id="{{pdata}}-{{../title}}-datum-{{order}}" value="{{content.datum}}" type="date")
+      label locatie
+      input.form-control(id="{{pdata}}-{{../title}}-locatie-{{order}}" value="{{content.locatie}}")
+      label gemeente
+      input.form-control(id="{{pdata}}-{{../title}}-gemeente-{{order}}" value="{{content.gemeente}}")
+      label beschrijving
+      input.form-control(id="{{pdata}}-{{../title}}-beschrijving-{{order}}" value="{{content.beschrijving}}")
+      label uur
+      input.form-control(id="{{pdata}}-{{../title}}-uur-{{order}}" value="{{content.uur}}")
+      br
+      button.btn.btn-changeOrder(sub="{{pdata}}" type="{{../type}}" title="{{../title}}" order="{{order}}" dir="up") up
+      button.btn.btn-changeOrder(sub="{{pdata}}" type="{{../type}}" title="{{../title}}" order="{{order}}" dir="down") down 
+      button.btn.btn-remove(sub="{{pdata}}" type="{{../type}}" title="{{../title}}" order="{{order}}") x 
+      button.btn.btn-success.saveSub(sub="{{pdata}}" type="{{../type}}" title="{{../title}}" order="{{order}}") Save
+      hr
+
+   button.btn.btn-add(sub="{{pdata}}" type="{{type}}" title="{{title}}") +

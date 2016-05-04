@@ -18,6 +18,8 @@ Package.onUse(function(api) {
             'accounts-ui',
             'alanning:roles',
             // 'lepozepo:s3',
+            'aldeed:collection2',
+            'aldeed:autoform',
             'markdown',
             'check']);
    api.addFiles(['lib.coffee']);
