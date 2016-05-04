@@ -6,7 +6,7 @@ Template.registerHelper 'page', (args) ->
    page = Pages.findOne {title:a.page}
    unless page?.subs[a.sub]?[a.content]?.content
       Meteor.call 'addPage', a
-   return page?.subs[a.sub]?[a.content]?.content
+   return page?.subs[a.sub]?[a.content]?.content.replace(/<br><br>/g, '\n\n')
 
 Template.registerHelper 'admin', -> Roles.userIsInRole Meteor.userId(), ['admin']
 
@@ -49,7 +49,7 @@ Template.component.events
       doc = this
       sub = $(e.currentTarget).attr('sub')
       doc.content = $("##{sub}-#{this.title}").val()
-      doc.content = doc.content.replace(/\n/g,'<br>')
+      #doc.content = doc.content.replace(/\n/g,'<br>')
       page = Router.current().params.page
       Meteor.call 'saveSub', doc, page
       $(e.currentTarget).html('Saved...')

@@ -39,8 +39,10 @@ Meteor.methods
             title: args.page
             subs: subs
    saveSub: (doc, page) ->
+      console.log doc.content
       checkAdmin()
-      content = doc.content.replace(/<br\s*[\/]?>/gi,'\n')
+      content = doc.content.replace(/\n/gi,'<br>')
+      console.log content
       set =
          "subs.#{doc.pdata}.#{doc.title}":
             content: content
