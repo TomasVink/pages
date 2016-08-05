@@ -38,27 +38,105 @@ Meteor.methods
          Pages.insert
             title: args.page
             subs: subs
-   saveSub: (doc, page) ->
-      console.log doc.content
+   saveSub: (doc, page, type) ->
       checkAdmin()
-      content = doc.content.replace(/\n/gi,'<br>')
-      console.log content
-      set =
+      if type is "text" or type is "textarea"
+         content = doc.content.replace(/<br\s*[\/]?>/gi,'\n')
+         set =
          "subs.#{doc.pdata}.#{doc.title}":
             content: content
             type: doc.type
-      Pages.update {title: page}, {$set:set}
-   changeOrder: (collection, dir, currentOrder) ->
+         Pages.update {title: page}, {$set:set}
+      else if type is "list"
+         Pages.update 
+            title: page
+            "subs.#{doc.pdata}.#{doc.title}.content.order": Number doc.order
+         ,
+            $set: 
+               "subs.#{doc.pdata}.#{doc.title}.content.$.content":
+                  _.object _.map doc, (value, key) -> [key, value.replace(/<br\s*[\/]?>/gi,'\n')]
+   addListItem: (doc, page)->
+      checkAdmin()
+      p = Pages.findOne({title: page})
+      highest = _.max p.subs[doc.pdata][doc.title].content, (o) -> o.order
+      highest.order += 1
+      Pages.update
+         title: page
+         {$push: "subs.#{doc.pdata}.#{doc.title}.content": 
+            $each: [ 
+               id: Random.id()
+               order: highest.order or 0
+               content:
+                  item: ""] }
+   addAgendaItem: (doc, page)->
+      checkAdmin()
+      p = Pages.findOne({title: page})
+      highest = _.max p.subs[doc.pdata][doc.title].content, (o) -> o.order
+      highest.order += 1
+      Pages.update
+         title: page
+         {$push: "subs.#{doc.pdata}.#{doc.title}.content": 
+            $each: [ 
+               id: Random.id()
+               order: highest.order or 0
+               content:
+                  datum: ""
+                  locatie: ""
+                  gemeente: ""
+                  soort: ""
+                  beschrijving: ""
+                  uur: ""
+                  extra: ""] }
+   removeListItem: (doc, page)->
+      checkAdmin()
+      Pages.update
+         title: page
+         { $pull: 
+            "subs.#{doc.pdata}.#{doc.title}.content": 
+               order: doc.order }
+      _.each Pages.findOne({title:page}).subs[doc.pdata][doc.title].content, (item) ->
+         if item.order > doc.order
+            Pages.update
+               title: page
+               "subs.#{doc.pdata}.#{doc.title}.content.id": item.id
+            ,
+               $set:
+                  "subs.#{doc.pdata}.#{doc.title}.content.$.order": item.order-1
+      
+   changeOrder: (page, doc, dir, currentOrder) ->
       # Not in use
       checkAdmin()
       # Define collection first!
-      # col = ...
-      obj = col.findOne {order:currentOrder}
+      col = Pages
+      page = col.findOne {title: page}
+      obj = _.find page.subs[doc.pdata][doc.title].content, (item) -> item.order is Number currentOrder
+      
       if dir is 'down'
-         unless obj.order + 1 is col.find().fetch().length
-            col.update {order:currentOrder+1}, {$set:{order:currentOrder}}
-            col.update {_id:obj._id}, {$set:{order:currentOrder+1}}
+         unless Number(currentOrder)+1 is page.subs[doc.pdata][doc.title].content.length
+
+            col.update 
+               _id: page._id
+               "subs.#{doc.pdata}.#{doc.title}.content.order": Number(currentOrder)+1
+            ,  
+               $set:
+                  "subs.#{doc.pdata}.#{doc.title}.content.$.order": Number currentOrder
+            col.update 
+               _id: page._id
+               "subs.#{doc.pdata}.#{doc.title}.content.id": obj.id
+            ,
+               $set: 
+                  "subs.#{doc.pdata}.#{doc.title}.content.$.order": Number(currentOrder)+1
       if dir is 'up'
-         unless obj.order is 0
-            col.update {order:currentOrder-1}, {$set:{order:currentOrder}}
-            col.update {_id:obj._id}, {$set:{order:currentOrder-1}}
+         unless Number(currentOrder) is 0
+            col.update 
+               _id: page._id
+               "subs.#{doc.pdata}.#{doc.title}.content.order": Number(currentOrder)-1
+            ,  
+               $set:
+                  "subs.#{doc.pdata}.#{doc.title}.content.$.order": Number currentOrder
+            col.update 
+               _id: page._id
+               "subs.#{doc.pdata}.#{doc.title}.content.id": obj.id
+            ,
+               $set: 
+                  "subs.#{doc.pdata}.#{doc.title}.content.$.order": Number(currentOrder)-1

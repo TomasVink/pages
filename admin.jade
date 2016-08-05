@@ -42,9 +42,61 @@ template(name="component")
    br
    if type 'text'
       input.form-control(id="{{pdata}}-{{title}}" type="text" value="{{content}}")
+      br
+      button.btn.btn-success.saveSub(sub="{{pdata}}" type="{{this.type}}") Save
+      hr
    else if type 'textarea'
       textarea.form-control(id="{{pdata}}-{{title}}" rows="6")
          | {{content}}
-   br
-   button.btn.btn-success.saveSub(sub="{{pdata}}") Save
+      br
+      button.btn.btn-success.saveSub(sub="{{pdata}}" type="{{this.type}}") Save
+      hr
+   else if type 'list'
+      +list
+   else if type 'agenda'
+      +agenda
+   
+template(name="list")
+   each list content
+      input.form-control(id="{{pdata}}-{{../title}}-item-{{order}}" value="{{content.item}}")
+      br
+      button.btn.btn-success.saveSub(sub="{{pdata}}" type="{{../type}}" title="{{../title}}" order="{{order}}") Save
+      | 
+      button.btn.btn-remove(sub="{{pdata}}" type="{{../type}}" title="{{../title}}" order="{{order}}") Remove
+      | 
+      button.btn.btn-changeOrder(sub="{{pdata}}" type="{{../type}}" title="{{../title}}" order="{{order}}" dir="up") up
+      | 
+      button.btn.btn-changeOrder(sub="{{pdata}}" type="{{../type}}" title="{{../title}}" order="{{order}}" dir="down") down 
+      hr
+
+   button.btn.btn-add(sub="{{pdata}}" type="{{type}}" title="{{title}}") Add item
+
+   hr
+
+template(name="agenda")
+   each agenda content
+      label datum
+      input.form-control(id="{{pdata}}-{{../title}}-datum-{{order}}" value="{{content.datum}}")
+      label locatie
+      input.form-control(id="{{pdata}}-{{../title}}-locatie-{{order}}" value="{{content.locatie}}")
+      label gemeente
+      input.form-control(id="{{pdata}}-{{../title}}-gemeente-{{order}}" value="{{content.gemeente}}")
+      label soort
+      input.form-control(id="{{pdata}}-{{../title}}-soort-{{order}}" value="{{content.soort}}")
+      label uur
+      input.form-control(id="{{pdata}}-{{../title}}-uur-{{order}}" value="{{content.uur}}")
+      label beschrijving
+      input.form-control(id="{{pdata}}-{{../title}}-beschrijving-{{order}}" value="{{content.beschrijving}}")
+      br
+      button.btn.btn-success.saveSub(sub="{{pdata}}" type="{{../type}}" title="{{../title}}" order="{{order}}") Save
+      | 
+      button.btn.btn-remove(sub="{{pdata}}" type="{{../type}}" title="{{../title}}" order="{{order}}") Item verwijderen
+      | 
+      button.btn.btn-changeOrder(sub="{{pdata}}" type="{{../type}}" title="{{../title}}" order="{{order}}" dir="up") omhoog
+      | 
+      button.btn.btn-changeOrder(sub="{{pdata}}" type="{{../type}}" title="{{../title}}" order="{{order}}" dir="down") omlaag 
+      hr
+
+   button.btn.btn-add(sub="{{pdata}}" type="{{type}}" title="{{title}}") Item toevoegen
+
    hr
